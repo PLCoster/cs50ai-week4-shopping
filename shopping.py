@@ -10,8 +10,12 @@ TEST_SIZE = 0.4
 def main():
 
     # Check command-line arguments
-    if len(sys.argv) != 2:
-        sys.exit("Usage: python shopping.py data")
+    if len(sys.argv) not in [2, 3]:
+        sys.exit("Usage: python shopping.py data [k=1]")
+    if len(sys.argv) == 3:
+        k = int(sys.argv[2])
+    else:
+        k = 1
 
     # Load data from spreadsheet and split into train and test sets
     evidence, labels = load_data(sys.argv[1])
@@ -20,7 +24,7 @@ def main():
     )
 
     # Train model and make predictions
-    model = train_model(X_train, y_train)
+    model = train_model(X_train, y_train, k)
     predictions = model.predict(X_test)
     sensitivity, specificity = evaluate(y_test, predictions)
 
@@ -60,64 +64,72 @@ def load_data(filename):
     is 1 if Revenue is true, and 0 otherwise.
     """
     # Dictionary Mapping Months to Numerical values
-    months = {'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5, 'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11}
+    months = {'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'June': 5, 'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11}
 
     # Mapping Visitor Types to integers
-    visitors = {'Returning_Visitor': 1, 'New_Visitor': 0}
+    visitors = {'Returning_Visitor': 1, 'New_Visitor': 0, 'Other': 0}
 
     # Mapping Boolean Strings to integers
     bools = {'TRUE': 1, 'FALSE': 0}
 
     # Create list of lists for evidence, list for labels:
-    evidence = [ [] for x in range(17)]
+    evidence = []
     labels = []
 
     # Open CSV file and load in data as dict:
     with open(filename, newline='') as csvfile:
         csvreader = csv.DictReader(csvfile, delimiter=',')
+        print('Loading Data from csv file...')
+        lines = 0
         for row in csvreader:
 
+            lines += 1
+
+            line = []
+
             # Append Evidence to List of Lists
-            evidence[0].append(int(row['Administrative']))
-            evidence[1].append(float(row['Administrative_Duration']))
-            evidence[2].append(int(row['Informational']))
-            evidence[3].append(float(row['Informational_Duration']))
-            evidence[4].append(int(row['ProductRelated']))
-            evidence[5].append(float(row['ProductRelated_Duration']))
-            evidence[6].append(float(row['BounceRates']))
-            evidence[7].append(float(row['ExitRates']))
-            evidence[8].append(float(row['PageValues']))
-            evidence[9].append(float(row['SpecialDay']))
-            evidence[10].append(months[row['Month']])
-            evidence[11].append(int(row['OperatingSystems']))
-            evidence[12].append(int(row['Browser']))
-            evidence[13].append(int(row['Region']))
-            evidence[14].append(int(row['TrafficType']))
-            evidence[15].append(visitors[row['VisitorType']])
-            evidence[16].append(bools[row['Weekend']])
+            line.append(int(row['Administrative']))
+            line.append(float(row['Administrative_Duration']))
+            line.append(int(row['Informational']))
+            line.append(float(row['Informational_Duration']))
+            line.append(int(row['ProductRelated']))
+            line.append(float(row['ProductRelated_Duration']))
+            line.append(float(row['BounceRates']))
+            line.append(float(row['ExitRates']))
+            line.append(float(row['PageValues']))
+            line.append(float(row['SpecialDay']))
+            line.append(months[row['Month']])
+            line.append(int(row['OperatingSystems']))
+            line.append(int(row['Browser']))
+            line.append(int(row['Region']))
+            line.append(int(row['TrafficType']))
+            line.append(visitors[row['VisitorType']])
+            line.append(bools[row['Weekend']])
+
+            # Add evidence line to evidence
+            evidence.append(line)
 
             # Append Labels to List
             labels.append(bools[row['Revenue']])
 
         # Confirm data loaded in successfully:
-        for column in evidence:
-            if len(column) != len(labels):
-                sys.exit('Error when loading data! - Column lengths do not match!')
+        if len(evidence) != len(labels):
+            sys.exit('Error when loading data! Evidence length does not match label length')
 
-        print('Data loaded successfully from csv file!')
+        print('Data loaded successfully from csv file! Total lines: ', lines)
 
         return evidence, labels
 
 
-def train_model(evidence, labels):
+def train_model(evidence, labels, k):
     """
     Given a list of evidence lists and a list of labels, return a
-    fitted k-nearest neighbor model (k=1) trained on the data.
+    fitted k-nearest neighbor model (k=k (default 1)) trained on the data.
     """
 
-    print('Fitting Model using k-Nearest Neighbours Classifier, with k = 1')
+    print('Fitting Model using k-Nearest Neighbours Classifier, with k = ', k)
 
-    model = KNeighborsClassifier(n_neighbors=1)
+    model = KNeighborsClassifier(n_neighbors=k)
     model.fit(evidence, labels)
 
     return model
