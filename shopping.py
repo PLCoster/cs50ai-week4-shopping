@@ -13,7 +13,10 @@ def main():
     if len(sys.argv) not in [2, 3]:
         sys.exit("Usage: python shopping.py data [k=1]")
     if len(sys.argv) == 3:
-        k = int(sys.argv[2])
+        try:
+            k = int(sys.argv[2])
+        except ValueError:
+            sys.exit("k setting must be an integer")
     else:
         k = 1
 
