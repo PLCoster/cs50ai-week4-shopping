@@ -59,7 +59,54 @@ def load_data(filename):
     labels should be the corresponding list of labels, where each label
     is 1 if Revenue is true, and 0 otherwise.
     """
-    raise NotImplementedError
+    # Dictionary Mapping Months to Numerical values
+    months = {'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5, 'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11}
+
+    # Mapping Visitor Types to integers
+    visitors = {'Returning_Visitor': 1, 'New_Visitor': 0}
+
+    # Mapping Boolean Strings to integers
+    bools = {'TRUE': 1, 'FALSE': 0}
+
+    # Create list of lists for evidence, list for labels:
+    evidence = [ [] for x in range(17)]
+    labels = []
+
+    # Open CSV file and load in data as dict:
+    with open(filename, newline='') as csvfile:
+        csvreader = csv.DictReader(csvfile, delimiter=',')
+        for row in csvreader:
+
+            # Append Evidence to List of Lists
+            evidence[0].append(int(row['Administrative']))
+            evidence[1].append(float(row['Administrative_Duration']))
+            evidence[2].append(int(row['Informational']))
+            evidence[3].append(float(row['Informational_Duration']))
+            evidence[4].append(int(row['ProductRelated']))
+            evidence[5].append(float(row['ProductRelated_Duration']))
+            evidence[6].append(float(row['BounceRates']))
+            evidence[7].append(float(row['ExitRates']))
+            evidence[8].append(float(row['PageValues']))
+            evidence[9].append(float(row['SpecialDay']))
+            evidence[10].append(months[row['Month']])
+            evidence[11].append(int(row['OperatingSystems']))
+            evidence[12].append(int(row['Browser']))
+            evidence[13].append(int(row['Region']))
+            evidence[14].append(int(row['TrafficType']))
+            evidence[15].append(visitors[row['VisitorType']])
+            evidence[16].append(bools[row['Weekend']])
+
+            # Append Labels to List
+            labels.append(bools[row['Revenue']])
+
+        # Confirm data loaded in successfully:
+        for column in evidence:
+            if len(column) != len(labels):
+                sys.exit('Error when loading data! - Column lengths do not match!')
+
+        print('Data loaded successfully from csv file!')
+
+        return evidence, labels
 
 
 def train_model(evidence, labels):
