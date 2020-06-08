@@ -56,4 +56,4 @@ $python(3) shopping.py shopping.csv [k=1]
 
 ## Acknowledgements:
 
-Data set provided by [Sakar, C.O., Polat, S.O., Katircioglu, M. et al. Neural Comput & Applic (2018)](http://https://link.springer.com/article/10.1007/s00521-018-3523-0)
+Data set provided by [Sakar, C.O., Polat, S.O., Katircioglu, M. et al. Neural Comput & Applic (2018)](https://link.springer.com/article/10.1007/s00521-018-3523-0)
